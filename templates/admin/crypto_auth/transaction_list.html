@@ -1,0 +1,200 @@
+{% extends "admin/change_list.html" %}
+{% load staticfiles %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+ {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "admin/css/changelists.css" %}">
+  {% if cl.formset %}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">
+  {% endif %}
+  {% if cl.formset or action_form %}
+    <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+  {% endif %}
+  {{ media.css }}
+  {% if not actions_on_top and not actions_on_bottom %}
+    <style>
+      #changelist table thead th:first-child {width: inherit}
+    </style>
+  {% endif %}
+
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{{ media.js }}
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.rawgit.com/ethereumjs/browser-builds/2fb69a714afe092b06645286f14b94f41e5c062c/dist/ethereumjs-tx.js"></script>
+<script>
+   $(document).ready (function(){
+         $("#alert_block").hide();
+         $("#content h1").css({
+           "font-size":"20px",
+           'font-weight':'300',
+           'color':'#666'
+         });
+   });
+</script>
+
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-list{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=cl.opts.app_label %}">{{ cl.opts.app_config.verbose_name }}</a>
+&rsaquo; {{ cl.opts.verbose_name_plural|capfirst }}
+</div>
+{% endblock %}
+{% endif %}
+
+{% block coltype %}flex{% endblock %}
+
+{% block content %}
+<!-- Change TREAZOR address, modal window -->
+<div class="modal fade bd-example-modal-lg" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Your Address:</label>
+            <div class="custom-control custom-radio">
+        <input checked type="radio" id="customRadio0" name="addressRadio" value="" class="custom-control-input">
+        <label style="display: flex; justify-content: space-between;" class="custom-control-label" for="customRadio0">...</label>
+      </div>
+      <div class="custom-control custom-radio">
+        <input type="radio" id="customRadio1" name="addressRadio" value="" class="custom-control-input">
+        <label style="display: flex; justify-content: space-between;" class="custom-control-label" for="customRadio1">...</label>
+      </div>
+      <div class="custom-control custom-radio">
+        <input type="radio" id="customRadio2" name="addressRadio" value="" class="custom-control-input">
+        <label style="display: flex; justify-content: space-between;" class="custom-control-label" for="customRadio2">...</label>
+      </div>
+      <div class="custom-control custom-radio">
+        <input type="radio" id="customRadio3" name="addressRadio" value="" class="custom-control-input">
+        <label style="display: flex; justify-content: space-between;" class="custom-control-label" for="customRadio3">...</label>
+      </div>
+      <div class="custom-control custom-radio">
+        <input type="radio" id="customRadio4" name="addressRadio" value="" class="custom-control-input">
+        <label style="display: flex; justify-content: space-between;" class="custom-control-label" for="customRadio4">...</label>
+      </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="submitForm" data-success="modal">Unlock your Wallet</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Change TREAZOR address, modal window end-->
+
+  <div id="content-main">
+    {% block object-tools %}
+        <ul class="object-tools">
+          {% block object-tools-items %}
+            {{ block.super }}
+            <!-- Connect to TREZOR block -->
+              <li>
+                  <button type="button" style="padding: .10rem .3rem;" class="btn btn-info btn-sm" data-toggle="modal" data-target=".bd-example-modal-lg">Connect to TREZOR</button>
+              </li>
+            <!-- Connect to TREZOR block end-->
+          {% endblock %}
+        </ul>
+    {% endblock %}
+    {% if cl.formset and cl.formset.errors %}
+        <p class="errornote">
+        {% if cl.formset.total_error_count == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+        </p>
+        {{ cl.formset.non_form_errors }}
+    {% endif %}
+    <!-- Alert block -->
+    <div class="alert" id="alert_block">
+        <button type="button" class="close" data-dismiss="alert">x</button>
+        <span id="alert-msg"></span>
+    </div>
+     <!-- Alert block end -->
+    <div class="module{% if cl.has_filters %} filtered{% endif %}" id="changelist">
+      {% block search %}{% search_form cl %}{% endblock %}
+      {% block date_hierarchy %}{% if cl.date_hierarchy %}{% date_hierarchy cl %}{% endif %}{% endblock %}
+
+      {% block filters %}
+        {% if cl.has_filters %}
+          <div id="changelist-filter">
+            <h2>{% trans 'Filter' %}</h2>
+            {% for spec in cl.filter_specs %}{% admin_list_filter cl spec %}{% endfor %}
+          </div>
+        {% endif %}
+      {% endblock %}
+
+      <form id="changelist-form" method="post"{% if cl.formset and cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %} novalidate>{% csrf_token %}
+      {% if cl.formset %}
+        <div>{{ cl.formset.management_form }}</div>
+      {% endif %}
+
+      {% block result_list %}
+          {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}
+          <div id="current_address_div" style="display: none;">
+                <label>Your TREZOR address:</label>
+                <p id="current_address"></p>
+          </div>
+          {% endif %}
+          {% result_list cl %}
+          {% if action_form and actions_on_bottom and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+      {% endblock %}
+      {% block pagination %}{% pagination cl %}{% endblock %}
+      </form>
+    </div>
+  </div>
+<script src="https://connect.trezor.io/6/trezor-connect.js"></script>
+<script src="{% static 'trezor/js/info.js' %}" type="text/javascript"></script>
+<script>
+  $('#exampleModal').on('show.bs.modal', function (event) {
+    getAddresses()
+    var modal = $(this)
+    modal.find('.modal-title').text('Please select the address you would like to interact with.')
+  });
+  $("#submitForm").click(function(e) {
+    var address = $('input[name=addressRadio]:checked').val();
+    document.getElementById('current_address').innerHTML = address;
+    document.getElementById('current_address_div').style.display = "block";
+    $('#exampleModal').modal('hide');
+  });
+  // if transactions was send - change to "OK msg instead of button"
+  // 
+  $("input[name=button_tx]").click(function(e) {
+    e.preventDefault();
+    var string = $(this).attr("string");
+    var item_id = $(this).attr("item-id");
+    var address = document.getElementById('current_address').innerHTML;
+    var postData = {
+      csrfmiddlewaretoken: '{{ csrf_token }}',
+      string: string,
+      address: address,
+      item_id: item_id
+    }
+    if(address != ""){
+      sendTx(postData);
+    } else {
+      $("#alert-msg").html("<strong>Fail! </strong>TREZOR hasn't connected. ");
+      $("#alert_block").attr("class", "alert alert-danger");
+      $("#alert_block").fadeTo(4000, 500).slideUp(300, function(){
+           $("#alert_block").slideUp(500);
+        });
+    }
+  });
+</script>
+{% endblock %}

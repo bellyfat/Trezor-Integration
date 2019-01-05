@@ -1,0 +1,118 @@
+{% load static %}
+
+
+<link href="{% static 'assets/css/core.min.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/app.min.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/style.min.css' %}" rel="stylesheet"
+
+{% block content %}
+    <!-- Main container -->
+    <main class="main-container">
+
+		<div class="main-content">
+			<div class="row">
+				
+				<!-- Divider -->
+				<div class="col-12">
+					<div class="divider text-primary text-uppercase">Transactions</div>
+				</div>
+				
+				<!-- MY CURRENT BALANCE -->
+				<div class="col-md-6 col-lg-6">
+					<div class="card card-body">
+					  <h6>
+						<span class="text-uppercase">MY CURRENT BALANCE</span>
+					  </h6>
+					  <br>
+            <!-- <p class="fs-28 fw-100">{{ hlor_sum|floatformat:15 }}</p> -->
+					  <p class="fs-28 fw-100">{{ balance|floatformat:2 }}</p>
+					  <div class="progress">
+						<div class="progress-bar {{ colorlinehlor }}" role="progressbar" style="width: {{ percentagehlor }}%; height: 4px;" aria-valuenow="{{ percentagehlor }}" aria-valuemin="0" aria-valuemax="100"></div>
+					  </div>
+					  <div class="text-gray fs-12"><i class="{{ arrowhlor }} {{ texticohlor }} mr-1"></i> {{ percentagehlor|floatformat:2 }}% {{ texthlor }} from last week</div>
+					</div>
+				</div>
+				
+				<!-- WITHDRAWALS -->
+				<div class="col-md-6 col-lg-6">
+          <!-- <div class="card card-body form-type-combine"> -->
+					<div>
+						<h6>
+							<span class="text-uppercase">Withdrawal - COMING SOON</span>
+						</h6>
+						<br>	
+            <!-- Withdraw form -->
+            <!-- <form method="POST" id="withdraw-form">		 -->
+  						<div class="input-group">
+  							<div class="input-group-prepend">
+                  <!-- <span class="input-group-text">Amount:</span> -->
+  								<span>Amount:</span>
+  							</div>
+  							<div class="input-group-input">
+  								<!-- <label for="inputDanger">COMING SOON</label> -->
+                  <!-- <input type="text" class="form-control fw-100 is-invalid" placeholder="Payout" id="inputDanger" disabled> -->
+  								<input type="text" class="form-control fw-100 is-invalid" placeholder="Payout" id="inputDanger">
+  								<div class="invalid-feedback"><!-- Please provide a valid value --></div>
+  							</div>
+  							<span class="input-group-append disabled">
+                  <!-- <button class="btn btn-primary" type="button" disabled>Withdraw</button> -->
+  								<button class="btn btn-primary" id="inputDangerButton" onclick="createWithdraw('{{ csrf_token }}', '{{ user }}')" type="button">Withdraw</button>
+  							</span>
+  						</div>
+          <!-- End Withdraw form -->
+					</div>
+				</div>
+				
+				<!-- TRANSACTIONS TABLE -->
+				<div class="col-12">
+					<div class="card">
+						<header class="card-header">
+							<h4 class="card-title">My Transactions</h4>
+						</header>
+						<div class="card-body">
+
+						<!-- <table id="transactions" class="table table-responsive-sm table-responsive-lg table-striped" cellspacing="0" data-provide="datatables" data-ajax="/transactionsajax"> -->
+							<table class="table table-responsive-sm table-responsive-lg table-striped" cellspacing="0" data-provide="datatables">
+								<thead>
+									<tr class="bg-pale-primary">
+										<th>ID</th>
+										<th>Date</th>
+										<th>Type</th>
+										<th>Amount</th>
+										<th>Payment Address</th>
+										<th>TX Number</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+                {% if withdraws %}
+                <tbody id="tbodyWithdraw">
+                  {% for item in withdraws %}
+                    <tr>
+                      <td>{{ item.id }}</td>
+                      <td>{{ item.created_at.date }}</td>
+                      <td>Type</td>
+                      <td>{{ item.amount|floatformat:2 }}</td>
+                      <td>{{ item.wallet_address }}</td>
+                      <td><a target="_blank" href="{{ item.tx_hash_link }}">{{ item.tx_hash }}</a></td>
+                      <td>{{ item.status }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+                {% endif %}
+								<tr>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+{% endblock %}
+
+{% block extrascrypts %}
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+    <script src="{% static 'profile/js/withdraw.js' %}" ></script>
+
+{% endblock %}

@@ -1,0 +1,487 @@
+{% extends 'profile/base.html' %}
+
+{% load static %}
+
+{% block sidebar %}
+
+    <aside class="sidebar sidebar-expand-lg sidebar-light sidebar-sm sidebar-color-info">
+        <header class="sidebar-header">
+            <span class="logo">
+                <a href="/profile/"><img src="{% static 'assets/img/logos/logo-white.png' %}" alt="hlor"></a>
+            </span>
+        </header>
+        <!-- Menu -->
+        <nav class="sidebar-navigation">
+            <ul class="menu menu-sm menu-bordery">
+                <li class="menu-item">
+                    <a class="menu-link" href="{% url 'home' %}">
+                        <span class="icon ti-pulse"></span>
+                        <span class="title">Main</span>
+                    </a>
+                </li>
+                <li class="menu-item active">
+                    <a class="menu-link" href="{% url 'profile' %}">
+                        <span class="icon ti-dashboard"></span>
+                        <span class="title">Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="{% url 'workers' %}">
+                        <span class="icon ti-desktop"></span>
+                        <span class="title">My Workers</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="{% url 'keys' %}">
+                      <span class="icon ti-shortcode"></span>
+                      <span class="title">My Keys</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="{% url 'downloads' %}">
+                      <span class="icon ti-download"></span>
+                      <span class="title">Downloads</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="{% url 'settings' %}">
+                      <span class="icon ti-settings"></span>
+                      <span class="title">Settings</span>
+                    </a>
+                </li>
+                <br>
+                <!-- Tour -->
+                <li class="text-center">
+                    <button class="btn btn-w-md btn-bold btn-primary" onclick="shepherd.start()">Start tour</button>
+                </li>
+            </ul>
+        </nav>
+        <!-- Banner -->
+        <div class="sidebar-profile">
+            <figure class="teaser teaser-honey">
+                <img src="{% static 'assets/img/banner.jpg' %}" alt="HLOR ICO">
+                <figcaption>
+                    <h3><i>hlor.com</i></h3>
+                    <a href="https://hlor.com" target="_blank">View more</a>
+                </figcaption>
+            </figure>
+        </div>
+    </aside>
+
+{% endblock %}
+
+
+{% block content %}
+    <!-- Main container -->
+    <main class="main-container">
+
+		<div class="main-content">
+			<div class="row">
+
+				<!-- TOTAL GENERATED HASHES -->
+				<div class="col-md-4 col-lg-4">
+					<div class="card card-body">
+					  <h6>
+						<span class="text-uppercase">Total Generated Hashes</span>
+					  </h6>
+					  <br>
+					  <p class="fs-28 fw-100">{{ whash__sum }}</p>
+					  <div class="progress">
+						<div class="progress-bar {{ colorlinehash }}" role="progressbar" style="width: {{ percentagehash }}%; height: 4px;" aria-valuenow="{{ percentagehash }}" aria-valuemin="0" aria-valuemax="100"></div>
+					  </div>
+					  <div class="text-gray fs-12"><i class="{{ arrowhash }} {{ texticohash }} mr-1"></i> {{ percentagehash|floatformat:2  }}% {{ texthash }} from last week</div>
+					</div>
+				</div>
+
+				<!-- TOTAL HLORIDES -->
+				<div class="col-md-4 col-lg-4">
+					<div class="card card-body">
+					  <h6>
+						<span class="text-uppercase">Total Hlorides</span>
+					  </h6>
+					  <br>
+					  <p class="fs-28 fw-100">{{ whash__sum }}</p>
+					  <div class="progress">
+						<div class="progress-bar {{ colorlinehash }}" role="progressbar" style="width: {{ percentagehash }}%; height: 4px;" aria-valuenow="{{ percentagehash }}" aria-valuemin="0" aria-valuemax="100"></div>
+					  </div>
+					  <div class="text-gray fs-12"><i class="{{ arrowhash }} {{ texticohash }} mr-1"></i> {{ differencehlorides }} {{ texthlorides }} than last week</div>
+					</div>
+				</div>
+
+				<!-- TOTAL GENERATED HLOR -->
+				<div class="col-md-4 col-lg-4">
+					<div class="card card-body">
+					  <h6>
+						<span class="text-uppercase">Total GENERATED HLOR</span>
+					  </h6>
+					  <br>
+					  <p class="fs-28 fw-100">{{ hlor_sum|floatformat:15 }}</p>
+					  <div class="progress">
+						<div class="progress-bar {{ colorlinehlor }}" role="progressbar" style="width: {{ percentagehlor }}%; height: 4px;" aria-valuenow="{{ percentagehlor }}" aria-valuemin="0" aria-valuemax="100"></div>
+					  </div>
+					  <div class="text-gray fs-12"><i class="{{ arrowhlor }} {{ texticohlor }} mr-1"></i> {{ percentagehlor|floatformat:2 }}% {{ texthlor }} from last week</div>
+					</div>
+				</div>
+
+				<!-- MY WORKERS CHART -->
+				<div class="col-lg-12">
+					<div class="card">
+					  <h4 class="card-title">My Workers</h4>
+						
+					  <div class="card-body">
+						<h6>
+							<span>Chart reflects your workers running with Hlor Addon. You can disable any worker by clicking on the worker name</span>
+						</h6>
+						<canvas id="chart-line-4" height="100" data-provide="chartjs"></canvas>
+					  </div>
+					</div>
+				</div>
+				
+				<!-- MY HLOR TABLE -->
+				<div class="col-12">
+					<div class="card">
+						<header class="card-header">
+							<h4 class="card-title">My actual work performed</h4>
+						</header>
+						<div class="card-body">
+							<table id="profile_table" class="table table-responsive-sm table-responsive-lg table-striped " cellspacing="0" data-provide="datatables" data-ajax="/tableprofileajax">
+								<thead>
+									<tr class="bg-pale-primary">
+										<th>Height</th>
+										<th>Age</th>
+										<th>Coin</th>
+										<th>Worker</th>
+										<th>Hashes</th>
+										<th>Hlorides</th>
+										<th>HLOR</th>
+									</tr>
+								</thead>
+								<tr>
+							</table>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Divider -->
+				<div class="col-12">
+					<div class="divider text-primary text-uppercase">Transactions</div>
+				</div>
+
+        <!-- Banner -->
+        <div class="col-12">
+          <div class="card mb-10 bg-pale-danger">
+            <header class="card-header">
+              <h4 class="card-title">Withdrawal service will be available after migrating to Ethereum.</h4>
+              <ul class="card-controls">
+                  <li><a class="card-btn-close" href="#"></a></li>
+              </ul>
+            </header>
+          </div>
+        </div>
+        <!-- End Banner -->
+				
+				<!-- MY CURRENT BALANCE -->
+				<div class="col-md-6 col-lg-6">
+					<div class="card card-body">
+					  <h6>
+						<span class="text-uppercase">MY CURRENT BALANCE</span>
+					  </h6>
+					  <br>
+					  <p class="fs-28 fw-100">{{ hlor_sum|floatformat:15 }}</p>
+					  <div class="progress">
+						<div class="progress-bar {{ colorlinehlor }}" role="progressbar" style="width: {{ percentagehlor }}%; height: 4px;" aria-valuenow="{{ percentagehlor }}" aria-valuemin="0" aria-valuemax="100"></div>
+					  </div>
+					  <div class="text-gray fs-12"><i class="{{ arrowhlor }} {{ texticohlor }} mr-1"></i> {{ percentagehlor|floatformat:2 }}% {{ texthlor }} from last week</div>
+					</div>
+				</div>
+				
+				<!-- WITHDRAWALS -->
+				<div class="col-md-6 col-lg-6">
+					<div class="card card-body form-type-combine">
+						<h6>
+							<span class="text-uppercase">Withdrawal - COMING SOON</span>
+						</h6>
+						<br>			
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<span class="input-group-text">Amount:</span>
+							</div>
+							<div class="input-group-input">
+								<label for="inputDanger">COMING SOON</label>
+								<input type="text" class="form-control fw-100 is-invalid" placeholder="Payout" id="inputDanger" disabled>
+								<div class="invalid-feedback"><!-- Please provide a valid value --></div>
+							</div>
+							<span class="input-group-append disabled">
+								<button class="btn btn-primary" type="button" disabled>Withdraw</button>
+							</span>
+						</div>
+					</div>
+				</div>
+				
+				<!-- TRANSACTIONS TABLE -->
+				<div class="col-12">
+					<div class="card">
+						<header class="card-header">
+							<h4 class="card-title">My Transactions</h4>
+						</header>
+						<div class="card-body">
+						
+						<!-- <table id="transactions" class="table table-responsive-sm table-responsive-lg table-striped" cellspacing="0" data-provide="datatables" data-ajax="/transactionsajax"> -->
+							<table class="table table-responsive-sm table-responsive-lg table-striped" cellspacing="0" data-provide="datatables">
+								<thead>
+									<tr class="bg-pale-primary">
+										<th>ID</th>
+										<th>Date</th>
+										<th>Type</th>
+										<th>Amount</th>
+										<th>Payment Address</th>
+										<th>TX Number</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tr>
+							</table>
+						</div>
+					</div>
+				</div>
+				
+
+			</div>
+		</div>
+
+		<!-- FOOTER -->
+		<footer class="site-footer">
+			<div class="row">
+				<div class="col-md-6">
+				  <p class="text-center text-sm-left">COPYRIGHT &copy; 2018 <a href="https://hlor.org" target="_blank"><strong>HLOR FOUNDATION</strong></a></p>
+				</div>
+
+				<div class="col-md-6">
+					<ul class="nav nav-primary nav-dotted nav-dot-separated justify-content-center justify-content-md-end">
+						<li class="nav-item">
+							<a class="nav-link" href="/faq">FAQ</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="/terms">Terms of Service</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="/privacy">Privacy Policy</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</footer>
+
+    </main>
+
+    <!-- END Main container -->
+
+
+
+    <!-- Global quickview -->
+    <div id="qv-global" class="quickview" data-url="../assets/data/quickview-global.html">
+      <div class="spinner-linear">
+        <div class="line"></div>
+      </div>
+    </div>
+    <!-- END Global quickview -->
+
+{% endblock %}
+
+{% block extrascrypts %}
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="{% static 'assets/js/core.min.js' %}"  data-provide="shepherd"></script>
+    <script src="{% static 'assets/js/app.min.js' %}"></script>
+	<script src="{% static 'assets/js/script.min.js' %}"></script>
+
+	<!-- Chartjs ... Remove -->
+   	<script src="{% static 'assets/vendor/chartjs/Chart.js' %}"></script>
+
+    <script>
+        app.ready(function(){
+    		var table = $('#profile_table').dataTable( {
+    		    'serverSide': true,
+        		'order': [[ 0, 'desc' ]],
+        		'destroy': true
+    		});
+    	});
+    </script>
+
+	
+	
+	<!-- Tour -->
+	<script>
+      var shepherd;
+      app.ready(function() {
+
+
+        shepherd = new Shepherd.Tour({
+          defaults: {
+            classes: 'shepherd-element shepherd-open shepherd-theme-arrows-plain-buttons',
+            showCancelLink: true,
+            scrollTo: true
+          }
+        });
+
+        shepherd.addStep('sidebar', {
+          title: 'Sidebar',
+          text: ['The main navigation block for your dashboard.'],
+          attachTo: '.sidebar right',
+          classes: 'shepherd shepherd-open shepherd-theme-arrows-plain-buttons shepherd-transparent-text',
+          buttons: [
+            {
+              text: 'Exit',
+              classes: 'btn btn-secondary',
+              action: shepherd.cancel
+            }, {
+              text: 'Next',
+              action: shepherd.next,
+              classes: 'btn btn-primary'
+            }
+          ]
+        });
+
+
+        shepherd.addStep('topbar-left', {
+          title: 'Notifications',
+          text: ['Our updates about Hlor and activity on your account.'],
+          attachTo: '.topbar-left bottom',
+          classes: 'shepherd shepherd-open shepherd-theme-arrows-plain-buttons shepherd-transparent-text',
+          buttons: [
+            {
+              text: 'Exit',
+              classes: 'btn btn-secondary',
+              action: shepherd.cancel
+            }, {
+              text: 'Next',
+              action: shepherd.next,
+              classes: 'btn btn-primary'
+            }
+          ]
+        });
+		
+		shepherd.addStep('fs-28', {
+          title: 'Hashes',
+          text: ['Your total generated hashes.'],
+          attachTo: '.fs-28  right',
+          classes: 'shepherd shepherd-open shepherd-theme-arrows-plain-buttons shepherd-transparent-text',
+          buttons: [
+            {
+              text: 'Exit',
+              classes: 'btn btn-secondary',
+              action: shepherd.cancel
+            }, {
+              text: 'Next',
+              action: shepherd.next,
+              classes: 'btn btn-primary'
+            }
+          ]
+        });
+
+
+        shepherd.addStep('card-title', {
+          title: 'Workers',
+          text: ['Chart reflects your workers running with Hlor Addon.'],
+          attachTo: '.card-title  top',
+          classes: 'shepherd shepherd-open shepherd-theme-arrows-plain-buttons shepherd-transparent-text',
+          buttons: [
+            {
+              text: 'Exit',
+              classes: 'btn btn-secondary',
+              action: shepherd.cancel
+            }, {
+              text: 'Next',
+              action: shepherd.next,
+              classes: 'btn btn-primary'
+            }
+          ]
+        });
+		
+		shepherd.addStep('table', {
+          title: 'Records',
+          text: ['Your actual work performed.'],
+          attachTo: '.table  top',
+          classes: 'shepherd shepherd-open shepherd-theme-arrows-plain-buttons shepherd-transparent-text',
+          buttons: [
+            {
+              text: 'Exit',
+              classes: 'btn btn-secondary',
+              action: shepherd.cancel
+            }, {
+              text: 'Next',
+              action: shepherd.next,
+              classes: 'btn btn-primary'
+            }
+          ]
+        });
+
+
+        shepherd.addStep('fs-18', {
+          title: 'Your Transactions',
+          text: 'COMING SOON',
+          attachTo: '.fs-18 bottom',
+          buttons: [
+            {
+              text: 'Back',
+              classes: 'btn btn-secondary',
+              action: shepherd.back
+            }, {
+              text: 'Done',
+              classes: 'btn btn-primary',
+              action: shepherd.next
+            }
+          ]
+        });
+      });
+    </script>
+
+    <!-- Line chart 4 -->
+	<script>
+		app.ready(function() {
+
+            var chart = new Chart($("#chart-line-4"), {
+              type: 'line',
+
+              // Data
+              //
+              data: {
+                labels: {{ x | safe}},
+                datasets: {{ datasets | safe }}
+
+              },
+
+              // Options
+              //
+              options: {
+                legend: {
+                    display: true,
+                    labels: {
+                    usePointStyle: true
+                    }
+                }}
+            });
+            $(function() {
+                setInterval(function () {
+
+                    $.ajax('/hlorajax/', {
+                        'type': 'Get',
+                        'async': true,
+                        'dataType': 'json',
+
+                        'success': function (data, status, xhr) {
+
+                            console.log(data['y'].join());
+                            chart.data.labels = data['x'];
+                            chart.data.datasets = data['y'];
+                            chart.update();
+                        },
+                        'error': function (data, status, error) {
+                        }
+                    });
+                }, 60 * 1000);
+            })
+		});
+    </script>
+{% endblock %}	
+

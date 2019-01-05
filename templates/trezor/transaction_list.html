@@ -1,0 +1,142 @@
+{% extends "trezor/base_page.html" %}
+{% load staticfiles %}
+
+{% block head %}
+<meta charset="UTF-8">
+<title>Transaction list</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.rawgit.com/ethereumjs/browser-builds/2fb69a714afe092b06645286f14b94f41e5c062c/dist/ethereumjs-tx.js"></script>
+{% endblock head %}
+
+{% block body %}
+
+<div class="alert" id="alert_block">
+    <button type="button" class="close" data-dismiss="alert">x</button>
+    <span id="alert-msg"></span>
+</div>
+
+<button type="button" class="btn btn-info" data-toggle="modal" data-target=".bd-example-modal-lg">Connect to TREZOR</button>
+
+<div id="current_address_div" style="display: none;">
+	<label>Your Address:</label>
+	<p id="current_address"></p>
+</div>
+
+<!-- <button type="Submit" class="btn btn-success">Sign</button>
+ -->
+
+<!-- Change TREAZOR address -->
+<div class="modal fade bd-example-modal-lg" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Your Address:</label>
+            <div class="custom-control custom-radio">
+			  <input checked type="radio" id="customRadio0" name="addressRadio" value="" class="custom-control-input">
+			  <label style="display: flex; justify-content: space-between;" class="custom-control-label" for="customRadio0">...</label>
+			</div>
+			<div class="custom-control custom-radio">
+			  <input type="radio" id="customRadio1" name="addressRadio" value="" class="custom-control-input">
+			  <label style="display: flex; justify-content: space-between;" class="custom-control-label" for="customRadio1">...</label>
+			</div>
+			<div class="custom-control custom-radio">
+			  <input type="radio" id="customRadio2" name="addressRadio" value="" class="custom-control-input">
+			  <label style="display: flex; justify-content: space-between;" class="custom-control-label" for="customRadio2">...</label>
+			</div>
+			<div class="custom-control custom-radio">
+			  <input type="radio" id="customRadio3" name="addressRadio" value="" class="custom-control-input">
+			  <label style="display: flex; justify-content: space-between;" class="custom-control-label" for="customRadio3">...</label>
+			</div>
+			<div class="custom-control custom-radio">
+			  <input type="radio" id="customRadio4" name="addressRadio" value="" class="custom-control-input">
+			  <label style="display: flex; justify-content: space-between;" class="custom-control-label" for="customRadio4">...</label>
+			</div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="submitForm" data-success="modal">Unlock your Wallet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Transaction list -->
+{% if transactions %}
+	{% for item in transactions %}
+    	<form method="post">{% csrf_token %}
+    		<label>String:</label>
+            <p id="status_{{ item.id }}">{{ item.tx }}</p>
+        {% if item.sent_tx %}
+            <input type="submit" id="id_{{ item.id }}" class="btn btn-outline-success" name="button_tx" value="Sent" disabled>
+        {% else %}
+        	<input type="submit" id="id_{{ item.id }}" class="btn btn-outline-info" name="button_tx" item-id="{{ item.id }}" data-href="{% url 'tx-update' item.id %}" value="Sign" string="{{ item.tx }}">
+        {% endif %}
+    	</form>
+	    </br>
+	{% endfor %}
+{% else %}
+	<p>Transaction list is empty</p>
+{% endif %}
+
+
+<script src="https://connect.trezor.io/6/trezor-connect.js"></script>
+
+<script src="{% static 'trezor/js/info.js' %}" type="text/javascript"></script>
+
+<script>
+	$(document).ready (function(){
+        $("#alert_block").hide();
+    });
+	$('#exampleModal').on('show.bs.modal', function (event) {
+		getAddresses()
+		var modal = $(this)
+		modal.find('.modal-title').text('Please select the address you would like to interact with.')
+	});
+	$("#submitForm").click(function(e) {
+		var address = $('input[name=addressRadio]:checked').val();
+		document.getElementById('current_address').innerHTML = address;
+		document.getElementById('current_address_div').style.display = "block";
+		$('#exampleModal').modal('hide');
+	});
+	// if transactions was send - change to "OK msg instead of button"
+	// 
+	$("input[name=button_tx]").click(function(e) {
+		var string = $(this).attr("string");
+		var item_id = $(this).attr("item-id");
+		var address = document.getElementById('current_address').innerHTML;
+		var postData = {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            string: string,
+            address: address,
+            item_id: item_id
+        }
+		sendTx(postData);
+        e.preventDefault();
+        $.ajax({
+            url: $(this).attr("data-href"),
+            type: 'POST',
+            data: postData, 
+            success:function (response) {
+                document.getElementById('status_' + response.id).innerHTML = response.new_tx;
+            },
+            fail: function (response) {
+                // alert("The Transaction wasn't created successfully."); //TODO change to message on js. timer 3 sec
+            },
+        });
+    });
+</script>
+{% endblock body %}
