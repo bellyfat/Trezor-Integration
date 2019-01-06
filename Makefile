@@ -8,7 +8,6 @@ up:
 	@$(DOCKER_COMPOSE) up -d --no-recreate
 
 start:
-	# Depends on the miner setup, uses redis from miner compose.
 	@$(DOCKER_COMPOSE) up --build
 
 down:

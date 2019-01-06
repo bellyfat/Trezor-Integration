@@ -73,8 +73,8 @@ class Key(models.Model):
         verbose_name = _('Key')
         verbose_name_plural = _('Key')
 
-class Transaction(models.Model):
-    """Transaction model"""
+class Withdraw(models.Model):
+    """Withdraw model"""
     amount = models.DecimalField(
         max_digits=1000,
         decimal_places=18,

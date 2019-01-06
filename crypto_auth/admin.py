@@ -4,17 +4,17 @@ from django.urls import reverse
 
 from singlemodeladmin import SingleModelAdmin
 
-from .models import Transaction, HlorUser, SiteConfiguration
-from .views import TransactionListView
+from .models import Withdraw, HlorUser, SiteConfiguration
+from .views import WithdrawListView
 
 
-@admin.register(Transaction)
-class TransactionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'tx_hash', 'is_sent', 'status', 'transaction_actions', ]
+@admin.register(Withdraw)
+class WithdrawAdmin(admin.ModelAdmin):
+    list_display = ['id', 'tx_hash', 'is_sent', 'status', 'withdraw_actions', ]
     list_filter = ['tx_hash', 'is_sent', 'status', ]
-    change_list_template = "admin/crypto_auth/transaction_list.html"
+    change_list_template = "admin/crypto_auth/withdraw_list.html"
 
-    def transaction_actions(self, obj):
+    def withdraw_actions(self, obj):
         button_init = """
             <input type="submit" id="id_{0}" 
             class="btn btn-outline-info btn-sm" 
@@ -37,8 +37,8 @@ class TransactionAdmin(admin.ModelAdmin):
         else:
             return format_html(button_init)
 
-    transaction_actions.short_description = 'Transaction Actions'
-    transaction_actions.allow_tags = True
+    withdraw_actions.short_description = 'Withdraw Actions'
+    withdraw_actions.allow_tags = True
 
 
 @admin.register(HlorUser)
