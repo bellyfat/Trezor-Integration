@@ -84,8 +84,9 @@
 										<th>Status</th>
 									</tr>
 								</thead>
-				                {% if withdraws %}
+				                
 				                <tbody id="tbodyWithdraw">
+				                {% if withdraws %}
 				                  {% for item in withdraws %}
 				                    <tr>
 				                      <td>{{ item.id }}</td>
@@ -97,8 +98,9 @@
 				                      <td>{{ item.status }}</td>
 				                    </tr>
 				                  {% endfor %}
-				                </tbody>
 				                {% endif %}
+				                </tbody>
+				                
 								<tr>
 							</table>
 							<div class="pagination">

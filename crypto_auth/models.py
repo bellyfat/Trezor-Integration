@@ -6,7 +6,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.conf import settings
 
-from .enum_choices import WithdrawStatus, Network
+from .enum_choices import WithdrawStatus, Network, NetworkName
 
 
 class HlorUser(models.Model):
@@ -115,7 +115,7 @@ class Withdraw(models.Model):
 class SiteConfiguration(models.Model):
     """Site configuration model"""
     network = models.CharField(
-        choices=[(status.value, status.name) for status in Network],
+        choices=[(network.value, network.name) for network in Network],
         max_length=150,
         null=False,
         blank=False,
@@ -128,3 +128,10 @@ class SiteConfiguration(models.Model):
         blank=False,
         default='0',
         help_text='Minimal withdraw amount')
+    network_name = models.CharField(
+        choices=[(name.value, name.name) for name in NetworkName],
+        max_length=150,
+        null=False,
+        blank=False,
+        default=NetworkName.RINKEBY.value,
+        help_text='Network name')

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # 'trezorlib',
+    # 'social_django',
     'crypto_auth',
 ]
 
@@ -70,7 +71,6 @@ TEMPLATES = [
 ]
 LOGIN_REDIRECT_URL = "/"
 WSGI_APPLICATION = 'integration.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases

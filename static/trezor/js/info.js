@@ -89,9 +89,7 @@ getPrice = async() => {
 async function sendTx(postData) {
     var contract = web3.eth.contract(abi).at(contractAddress);
     var path = "m/44'/60'/0'";
-    // if(info.success == true){} //TODO
-
-    var dataTx = contract.setName.getData(postData['string']);
+    var dataTx = contract.setName.getData(postData['amount']);
     var nonce = await getNonce(postData['address']);
     if(nonce != 0) { nonce = "0x" + nonce.toString(16)}
     else { nonce = "0x0" }
@@ -121,6 +119,7 @@ async function sendTx(postData) {
 		const rawTx = '0x' + serializedTx.toString('hex');
 	    await web3.eth.sendRawTransaction(rawTx, function(err, hash) {
 	        if (!err) {
+	        	postData.tx_hash = hash;
 	            var _id = '#id_' + postData['item_id'];
 	            // change document.getElementById to $ - get elements by input param
 	            // $(_id).disabled = "disabled" ;
@@ -136,16 +135,29 @@ async function sendTx(postData) {
 	         	$.ajax({
 					url: '/update-tx/' + postData['item_id'],
 					type: 'POST',
-					data: postData, 
+					data: postData,
 					success:function (response) {
-					  	$("#alert-msg").html("<strong>Success! </strong>Transaction has sent and updated.");
-						$("#alert_block").attr("class", "alert alert-success");
-						$("#alert_block").fadeTo(4000, 500).slideUp(500, function(){
-				   			$("#alert_block").slideUp(500);
-						});
-						var image = $(_id).parents().eq(1).children(".field-sent_tx").children("img");
-						image.attr("src", "/static/admin/img/icon-yes.svg");
-						image.attr("alt", "True");
+						if('error' in response) {
+							$("#alert-msg").html("<strong>Fail! </strong>Transaction hasn't sent and updated. " + response.error);
+							$("#alert_block").attr("class", "alert alert-danger");
+							$("#alert_block").fadeTo(4000, 500).slideUp(500, function(){
+								$("#alert_block").slideUp(500);
+							});
+						} else {
+						  	$("#alert-msg").html("<strong>Success! </strong>Transaction has sent and updated.");
+							$("#alert_block").attr("class", "alert alert-success");
+							$("#alert_block").fadeTo(4000, 500).slideUp(500, function(){
+					   			$("#alert_block").slideUp(500);
+							});
+							var image_field = $(_id).parents().eq(1).children(".field-is_sent").children("img");
+							var link_field = $(_id).parents().eq(1).children(".field-tx_link");
+							var status_field = $(_id).parents().eq(1).children(".field-status");
+							image_field.attr("src", "/static/admin/img/icon-yes.svg");
+							image_field.attr("alt", "True");
+							var link = "<a target='_blank' href=" + response.tx_hash_link + ">" + response.tx_hash + "</a>"
+							link_field.append(link);
+							status_field.text(response.status)
+						}
 					},
 					fail: function (response) {
 						$("#alert-msg").html("<strong>Fail! </strong>Transaction hasn't sent and updated. " + response);

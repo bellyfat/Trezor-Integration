@@ -163,9 +163,9 @@
 <script src="{% static 'trezor/js/info.js' %}" type="text/javascript"></script>
 <script>
   $('#exampleModal').on('show.bs.modal', function (event) {
-    getAddresses()
-    var modal = $(this)
-    modal.find('.modal-title').text('Please select the address you would like to interact with.')
+    getAddresses();
+    var modal = $(this);
+    modal.find('.modal-title').text('Please select the address you would like to interact with.');
   });
   $("#submitForm").click(function(e) {
     var address = $('input[name=addressRadio]:checked').val();
@@ -177,12 +177,12 @@
   // 
   $("input[name=button_tx]").click(function(e) {
     e.preventDefault();
-    var string = $(this).attr("string");
+    var amount = $(this).attr("amount");
     var item_id = $(this).attr("item-id");
     var address = document.getElementById('current_address').innerHTML;
     var postData = {
       csrfmiddlewaretoken: '{{ csrf_token }}',
-      string: string,
+      amount: amount,
       address: address,
       item_id: item_id
     }

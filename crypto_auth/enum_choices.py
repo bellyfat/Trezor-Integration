@@ -18,3 +18,12 @@ class Network(Enum):
     @classmethod
     def all(self):
         return [Network.MAINNET, Network.RINKEBY]
+
+
+class NetworkName(Enum):
+    MAINNET = 'mainnet'
+    RINKEBY = 'rinkeby'
+
+    @classmethod
+    def all(self):
+        return [NetworkName.MAINNET, NetworkName.RINKEBY]

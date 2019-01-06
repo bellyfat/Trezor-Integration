@@ -28,13 +28,12 @@ from django.http import Http404, JsonResponse
 from decimal import Decimal
 
 from .models import HlorUser, SiteConfiguration, Withdraw
+from .enum_choices import WithdrawStatus
 
-# from datetime import datetime, timedelta
-# import json
-# import time
-# import requests
+network = SiteConfiguration.objects.first().network_name
+web3 = Web3(
+    HTTPProvider('https://{}.infura.io/TraaTD0M8AKlhMRoRNp8'.format(network)))
 
-web3 = Web3(HTTPProvider('https://rinkeby.infura.io/TraaTD0M8AKlhMRoRNp8'))
 
 def get_error_msg(msg):
     return JsonResponse({'error': msg})
@@ -55,14 +54,20 @@ class WithdrawListView(ListView):
 
 
 def tx_update(request, pk):
-    item = get_object_or_404(Withdraw, pk=pk) #test
-    item.status = True
-    item.save()
-    # return Response(response, status=status.HTTP_400_BAD_REQUEST)
-    return JsonResponse({
-        'new_status': item.status,
-        'id': item.id,
-    }) #test, add success and fail http responses
+    try:
+        item = get_object_or_404(Withdraw, pk=pk) #test
+        item.status = WithdrawStatus.SUCCESS.value
+        item.tx_hash = request.POST.get('tx_hash')
+        item.is_sent = True
+        item.save()
+        return JsonResponse({
+            'status': WithdrawStatus.SUCCESS.name,
+            'id': item.id,
+            'tx_hash_link': item.tx_hash_link,
+            'tx_hash': item.tx_hash,
+        })
+    except:
+        return JsonResponse({'error': 'Withdraw key is not exist'})
 
 
 @login_required(login_url='/login')
@@ -87,14 +92,12 @@ def profile(request):
 def create_withdraw(request):
     if request.method == 'POST':
         str_amount = request.POST.get('amount')
-
         regex = re.compile('^\d+\.?\d{0,18}$')
         if regex.search(str_amount) == None:
             msg = 'Withdraw is not possible, withdraw amount is incorrect.'
             return get_error_msg(msg)
 
-        withdraw_amount = float(str_amount)
-
+        withdraw_amount = Decimal(str_amount)
         min_amount = SiteConfiguration.objects.first().min_withdraw_amount
 
         if withdraw_amount <= min_amount:
@@ -108,8 +111,7 @@ def create_withdraw(request):
         user = request.user
         user_obj = User.objects.get(username=user.username)
         wallet = user_obj.hlor.wallet_address
-        balance = float(user_obj.hlor.balance)
-
+        balance = user_obj.hlor.balance
         if not web3.isAddress(wallet):
             msg = 'Wrong wallet addres.'
             return get_error_msg(msg)
@@ -130,10 +132,9 @@ def create_withdraw(request):
             amount=withdraw_amount,
             user=request.user,
             wallet_address=wallet)
-
         user_obj.hlor.balance = new_balance_amount
-        user_obj.hlor.save()
 
+        user_obj.hlor.save()
         response_data = {
             'id': withdraw.id,
             'amount': withdraw.amount,

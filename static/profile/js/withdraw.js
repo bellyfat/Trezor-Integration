@@ -25,7 +25,7 @@ function createWithdraw(csrf_token, user){
             }
         },
         fail: function (response) {
-            console.log(2, response)
+            console.log(response)
         },
     });
 }

@@ -10,32 +10,42 @@ from .views import WithdrawListView
 
 @admin.register(Withdraw)
 class WithdrawAdmin(admin.ModelAdmin):
-    list_display = ['id', 'tx_hash', 'is_sent', 'status', 'withdraw_actions', ]
+    list_display = [
+        'id', 'user', 'amount', 'is_sent', 'withdraw_actions', 'status', 'tx_link',
+        'created_at', 'wallet_address',
+    ]
     list_filter = ['tx_hash', 'is_sent', 'status', ]
     change_list_template = "admin/crypto_auth/withdraw_list.html"
 
     def withdraw_actions(self, obj):
         button_init = """
-            <input type="submit" id="id_{0}" 
-            class="btn btn-outline-info btn-sm" 
-            name="button_tx" 
-            item-id="{0}" 
-            data-href="/update-tx/{0}" 
-            value="Sign" string="{1}"
+            <input type="submit" id="id_{0}"
+            class="btn btn-outline-info btn-sm"
+            name="button_tx"
+            item-id="{0}"
+            data-href="/update-tx/{0}"
+            value="Sign" amount="{1}"
             style='opacity: 0.8;padding: 2px 15px;'>
-            """.format(obj.id, obj.tx_hash)
+            """.format(obj.id, obj.amount)
         button_sent = """
             <input type='submit' id='id_{}' 
-            class='btn btn-outline-success btn-sm' 
-            name='button_tx' 
+            class='btn btn-outline-success btn-sm'
+            name='button_tx'
             value='Sent'
-            style='opacity: 0.8;padding: 2px 15px; 
+            style='opacity: 0.8;padding: 2px 15px;
             background-color: transparent; cursor: default;' disabled>
             """.format(obj.id)
-        if(obj.is_sent):
+        if obj.is_sent:
             return format_html(button_sent)
         else:
             return format_html(button_init)
+
+    def tx_link(self, obj):
+        if obj.tx_hash:
+            link = "<a target='_blank' href='{}'>{}</a>".format(obj.tx_hash_link, obj.tx_hash)
+            return format_html(link)
+        else:
+            return ""
 
     withdraw_actions.short_description = 'Withdraw Actions'
     withdraw_actions.allow_tags = True
