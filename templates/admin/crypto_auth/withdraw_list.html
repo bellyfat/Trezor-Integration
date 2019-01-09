@@ -150,6 +150,7 @@
           <div id="current_address_div" style="display: none;">
                 <label>Your TREZOR address:</label>
                 <p id="current_address"></p>
+                <p id="path" style="display: none;"></p>
           </div>
           {% endif %}
           {% result_list cl %}
@@ -169,22 +170,30 @@
   });
   $("#submitForm").click(function(e) {
     var address = $('input[name=addressRadio]:checked').val();
+    var path = $('input[name=addressRadio]:checked').data("path");
     document.getElementById('current_address').innerHTML = address;
-    document.getElementById('current_address_div').style.display = "block";
+    document.getElementById('path').innerHTML = path;
+    if(address != "") {
+      document.getElementById('current_address_div').style.display = "block";
+    }
     $('#exampleModal').modal('hide');
   });
   // if transactions was send - change to "OK msg instead of button"
-  // 
+  //
   $("input[name=button_tx]").click(function(e) {
     e.preventDefault();
     var amount = $(this).attr("amount");
     var item_id = $(this).attr("item-id");
+    var wallet_address = $(this).attr("wallet");
     var address = document.getElementById('current_address').innerHTML;
+    var path = document.getElementById('path').innerHTML;
     var postData = {
       csrfmiddlewaretoken: '{{ csrf_token }}',
       amount: amount,
       address: address,
-      item_id: item_id
+      wallet_address: wallet_address,
+      item_id: item_id,
+      path: path
     }
     if(address != ""){
       sendTx(postData);
@@ -195,6 +204,15 @@
            $("#alert_block").slideUp(500);
         });
     }
+  });
+  $("input[name=button_reject]").click(function(e) {
+    e.preventDefault();
+    var item_id = $(this).attr("item-id");
+    var rejectData = {
+      csrfmiddlewaretoken: '{{ csrf_token }}',
+      item_id: item_id,
+    }
+    rejectTx(rejectData);
   });
 </script>
 {% endblock %}

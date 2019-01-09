@@ -6,7 +6,9 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.conf import settings
 
-from .enum_choices import WithdrawStatus, Network, NetworkName
+from .enum_choices import (
+        WithdrawStatus, Network, NetworkName, TransactionType
+    )
 
 
 class HlorUser(models.Model):
@@ -21,7 +23,7 @@ class HlorUser(models.Model):
     wallet_address = models.CharField(
         max_length=255,
         null=False,
-        blank=False,
+        blank=True,
         help_text='Wallet address')
 
     @property
@@ -93,7 +95,9 @@ class Withdraw(models.Model):
         help_text='User ID')
     tx_hash = models.CharField(
         help_text='Transaction hash',
-        max_length=150)
+        max_length=150,
+        null=False,
+        blank=True)
     is_sent = models.BooleanField(default=False)
     status = models.CharField(
         choices=[(status.value, status.name) for status in WithdrawStatus],
@@ -102,12 +106,20 @@ class Withdraw(models.Model):
         blank=False,
         default=WithdrawStatus.PENDING.value,
         help_text='Status')
+
+    type_tx = models.CharField(
+        choices=[(type_tx.value, type_tx.name) for type_tx in TransactionType],
+        max_length=10,
+        null=False,
+        blank=True,
+        help_text='Type of transaction')
+
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     @property
     def tx_hash_link(self):
-        return "{}tx/{}".format(Network.RINKEBY.value, self.tx_hash)
+        return "{}{}".format(SiteConfiguration.objects.first().network, self.tx_hash)
 
     class Meta:
         ordering = ['-id']

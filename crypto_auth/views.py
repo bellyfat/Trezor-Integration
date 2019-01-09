@@ -28,7 +28,7 @@ from django.http import Http404, JsonResponse
 from decimal import Decimal
 
 from .models import HlorUser, SiteConfiguration, Withdraw
-from .enum_choices import WithdrawStatus
+from .enum_choices import WithdrawStatus, TransactionType
 
 network = SiteConfiguration.objects.first().network_name
 web3 = Web3(
@@ -65,6 +65,19 @@ def tx_update(request, pk):
             'id': item.id,
             'tx_hash_link': item.tx_hash_link,
             'tx_hash': item.tx_hash,
+        })
+    except:
+        return JsonResponse({'error': 'Withdraw key is not exist'})
+
+
+def tx_reject(request, pk):
+    try:
+        item = get_object_or_404(Withdraw, pk=pk) #test
+        item.status = WithdrawStatus.REJECTED.value
+        item.save()
+        return JsonResponse({
+            'status': WithdrawStatus.REJECTED.name,
+            'id': item.id,
         })
     except:
         return JsonResponse({'error': 'Withdraw key is not exist'})
@@ -112,6 +125,10 @@ def create_withdraw(request):
         user_obj = User.objects.get(username=user.username)
         wallet = user_obj.hlor.wallet_address
         balance = user_obj.hlor.balance
+        if wallet == "":
+            msg = 'Wallet addres is empty.'
+            return get_error_msg(msg)
+
         if not web3.isAddress(wallet):
             msg = 'Wrong wallet addres.'
             return get_error_msg(msg)
@@ -131,17 +148,20 @@ def create_withdraw(request):
         withdraw = Withdraw.objects.create(
             amount=withdraw_amount,
             user=request.user,
-            wallet_address=wallet)
+            wallet_address=wallet,
+            type_tx=TransactionType.DEBIT.value)
         user_obj.hlor.balance = new_balance_amount
 
         user_obj.hlor.save()
         response_data = {
             'id': withdraw.id,
             'amount': withdraw.amount,
+            'type_tx': withdraw.type_tx,
             'status': withdraw.status,
             'tx_hash': withdraw.tx_hash,
             'created_at': withdraw.created_at.strftime("%b. %-d, %Y"),
             'wallet_address': withdraw.wallet_address,
+            'balance': new_balance_amount,
         }
         return JsonResponse(response_data)
             

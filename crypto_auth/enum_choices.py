@@ -3,12 +3,12 @@ from enum import Enum
 
 class WithdrawStatus(Enum):
     PENDING = 'Pending'
-    FAILED = 'Failed'
+    REJECTED = 'Rejected'
     SUCCESS = 'Success'
 
     @classmethod
     def all(self):
-        return [WithdrawStatus.PENDING, WithdrawStatus.FAILED, WithdrawStatus.SUCCESS]
+        return [WithdrawStatus.PENDING, WithdrawStatus.REJECTED, WithdrawStatus.SUCCESS]
 
 
 class Network(Enum):
@@ -27,3 +27,13 @@ class NetworkName(Enum):
     @classmethod
     def all(self):
         return [NetworkName.MAINNET, NetworkName.RINKEBY]
+
+
+class TransactionType(Enum):
+    CREDIT = 'Credit'
+    DEBIT = 'Debit'
+    FEE = 'Fee'
+
+    @classmethod
+    def all(self):
+        return [TransactionType.CREDIT, TransactionType.DEBIT, TransactionType.FEE]

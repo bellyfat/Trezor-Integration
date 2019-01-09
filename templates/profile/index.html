@@ -25,8 +25,7 @@
 					  </h6>
 					  <br>
             <!-- <p class="fs-28 fw-100">{{ hlor_sum|floatformat:15 }}</p> -->
-					  <p class="fs-28 fw-100">{{ balance }}</p>
-					  <div class="progress">
+					  <p class="fs-28 fw-100" id="balance">{{ balance }}</p><div class="progress">
 						<div class="progress-bar {{ colorlinehlor }}" role="progressbar" style="width: {{ percentagehlor }}%; height: 4px;" aria-valuenow="{{ percentagehlor }}" aria-valuemin="0" aria-valuemax="100"></div>
 					  </div>
 					  <div class="text-gray fs-12"><i class="{{ arrowhlor }} {{ texticohlor }} mr-1"></i> {{ percentagehlor|floatformat:2 }}% {{ texthlor }} from last week</div>
@@ -91,7 +90,7 @@
 				                    <tr>
 				                      <td>{{ item.id }}</td>
 				                      <td>{{ item.created_at.date }}</td>
-				                      <td>Type</td>
+				                      <td>{{ item.type_tx }}</td>
 				                      <td>{{ item.amount|floatformat:2 }}</td>
 				                      <td>{{ item.wallet_address }}</td>
 				                      <td><a target="_blank" href="{{ item.tx_hash_link }}">{{ item.tx_hash }}</a></td>
