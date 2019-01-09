@@ -26,11 +26,11 @@ async function getAddresses() {
 async function _getAddresses() {
     var response = await TrezorConnect.ethereumGetAddress({
         bundle: [
-            { path: "m/44'/60'/0'", showOnTrezor: false }, // account 1
-            { path: "m/44'/60'/1'", showOnTrezor: false }, // account 2
-            { path: "m/44'/60'/2'", showOnTrezor: false }, // account 3
-            { path: "m/44'/60'/3'", showOnTrezor: false }, // account 3
-            { path: "m/44'/60'/4'", showOnTrezor: false }, // account 3
+            { path: "m/44'/60'/0'/0/0", showOnTrezor: false }, // account 1
+            { path: "m/44'/60'/0'/0/1", showOnTrezor: false }, // account 2
+            { path: "m/44'/60'/0'/0/2", showOnTrezor: false }, // account 3
+            { path: "m/44'/60'/0'/0/3", showOnTrezor: false }, // account 3
+            { path: "m/44'/60'/0'/0/4", showOnTrezor: false }, // account 3
         ]
     });
     return response['payload'];
